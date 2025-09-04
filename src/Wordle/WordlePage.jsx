@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { Box } from "@mui/material";
-import Typography from "@mui/material/Typography";
-import Alert from "@mui/material/Alert";
-import CheckIcon from "@mui/icons-material/Check";
-import Button from "@mui/material/Button";
+import {
+  Box,
+  Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
 
 export const WordlePage = () => {
   const [gameOver, setGameOver] = useState(false);
@@ -20,9 +24,12 @@ export const WordlePage = () => {
       .fill()
       .map(() => Array(5).fill("white"))
   );
+  const [showDialog, setShowDialog] = useState(false);
+  const [won, setWon] = useState(false);
+  const [word, setWord] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:3001/start")
+    fetch("https://wordle-backend-3r6l.onrender.com/start")
       .then((res) => res.json())
       .then(() => setGameStarted(true));
   }, []);
@@ -45,27 +52,31 @@ export const WordlePage = () => {
           setCurrentCol(currentCol - 1);
         }
       } else if (key === "Enter" && currentCol === 5) {
-        // Get the guess from the current row
         const guess = grid[currentRow].join("").toLowerCase();
 
         try {
-          const helper = await fetch("http://localhost:3001/valid", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ currentGuess: guess }),
-          });
-          const data_two = await helper.json();
-
-          if (data_two.result === "true") {
-            const res = await fetch("http://localhost:3001/guess", {
+          const helper = await fetch(
+            "https://wordle-backend-3r6l.onrender.com/valid",
+            {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ currentGuess: guess }),
-            });
+            }
+          );
+          const data_two = await helper.json();
+
+          if (data_two.result === "true") {
+            const res = await fetch(
+              "https://wordle-backend-3r6l.onrender.com/guess",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ currentGuess: guess }),
+              }
+            );
             const data = await res.json();
 
             const newCellColors = cellColors.map((row) => [...row]);
-
             for (var i = 0; i < 5; i++) {
               if (data.result[i] == "Y") {
                 newCellColors[currentRow][i] = "green";
@@ -75,7 +86,6 @@ export const WordlePage = () => {
                 newCellColors[currentRow][i] = "red";
               }
             }
-
             setCellColors(newCellColors);
 
             setCurrentRow(currentRow + 1);
@@ -86,13 +96,14 @@ export const WordlePage = () => {
         }
 
         try {
-          const res = await fetch("http://localhost:3001/game-over");
+          const res = await fetch(
+            "https://wordle-backend-3r6l.onrender.com/game-over"
+          );
           const data = await res.json();
           setGameOver(data.gameOver);
-          console.log(data.wordCurrent);
-          <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
-            Here is a gentle confirmation that your action was successful.
-          </Alert>;
+          setWon(data.won);
+          setWord(data.wordCurrent);
+          if (data.gameOver) setShowDialog(true);
         } catch (error) {
           console.error("Error ending game");
         }
@@ -114,17 +125,13 @@ export const WordlePage = () => {
         padding: 2,
       }}
     >
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        {gameStarted ? "Wordle Game Started!" : "Loading..."}
-      </Typography>
       <Button
         variant="contained"
         color="primary"
         sx={{ backgroundColor: "red" }}
         onClick={() => window.location.reload()}
       >
-        {" "}
-        Restart Game{" "}
+        Restart Game
       </Button>
       <Box
         sx={{ display: "flex", flexDirection: "column", gap: 1, marginTop: 4 }}
@@ -144,7 +151,7 @@ export const WordlePage = () => {
                   fontSize: 32,
                   fontWeight: "bold",
                   textTransform: "uppercase",
-                  backgroundColor: cellColors[rowIndex][colIndex], // <-- use color here
+                  backgroundColor: cellColors[rowIndex][colIndex],
                   borderColor:
                     rowIndex === currentRow &&
                     colIndex === currentCol &&
@@ -163,6 +170,21 @@ export const WordlePage = () => {
           </Box>
         ))}
       </Box>
+      <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
+        <DialogTitle>{won ? "Congratulations!" : "Game Over"}</DialogTitle>
+        <DialogContent>
+          <Typography>
+            {won
+              ? "You guessed the word correctly!"
+              : `The word was: ${word.toUpperCase()}`}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDialog(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
