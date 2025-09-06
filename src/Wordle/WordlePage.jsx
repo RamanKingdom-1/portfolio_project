@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
@@ -7,7 +7,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
 } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export const WordlePage = () => {
   const [gameOver, setGameOver] = useState(false);
@@ -27,6 +29,9 @@ export const WordlePage = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [won, setWon] = useState(false);
   const [word, setWord] = useState("");
+
+  const isMobile = useMediaQuery("(max-width:600px)");
+  const inputRef = useRef();
 
   useEffect(() => {
     fetch("https://wordle-backend-3r6l.onrender.com/start")
@@ -114,6 +119,30 @@ export const WordlePage = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentRow, currentCol, grid, cellColors, gameOver]);
 
+  // Focus input on mobile
+  useEffect(() => {
+    if (isMobile && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isMobile, currentRow, currentCol]);
+
+  // Handle input for mobile
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    if (!gameOver && value.length > 0) {
+      const key = value[value.length - 1];
+      if (/^[a-zA-Z]$/.test(key) && currentCol < 5) {
+        const newGrid = [...grid];
+        newGrid[currentRow][currentCol] = key.toUpperCase();
+        setGrid(newGrid);
+        setCurrentCol(currentCol + 1);
+      }
+      // Optionally handle backspace and enter here
+    }
+    // Clear input after each key
+    e.target.value = "";
+  };
+
   return (
     <Box
       sx={{
@@ -170,6 +199,15 @@ export const WordlePage = () => {
           </Box>
         ))}
       </Box>
+      {/* Show input only on mobile */}
+      {isMobile && (
+        <TextField
+          inputRef={inputRef}
+          sx={{ opacity: 0, position: "absolute", pointerEvents: "none" }}
+          onChange={handleInputChange}
+          autoFocus
+        />
+      )}
       <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
         <DialogTitle>{won ? "Congratulations!" : "Game Over"}</DialogTitle>
         <DialogContent>
