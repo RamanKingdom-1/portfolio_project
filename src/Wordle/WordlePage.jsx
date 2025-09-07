@@ -29,6 +29,8 @@ export const WordlePage = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [won, setWon] = useState(false);
   const [word, setWord] = useState("");
+  const [gameKey, setGameKey] = useState(0);
+  const [invalidWordDialog, setInvalidWordDialog] = useState(false);
 
   const isMobile = useMediaQuery("(max-width:600px)");
   const inputRef = useRef();
@@ -95,6 +97,8 @@ export const WordlePage = () => {
 
             setCurrentRow(currentRow + 1);
             setCurrentCol(0);
+          } else {
+            setInvalidWordDialog(true);
           }
         } catch (error) {
           console.error("Error sending guess:", error);
@@ -119,14 +123,12 @@ export const WordlePage = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentRow, currentCol, grid, cellColors, gameOver]);
 
-  // Focus input on mobile
   useEffect(() => {
     if (isMobile && inputRef.current) {
       inputRef.current.focus();
     }
   }, [isMobile, currentRow, currentCol]);
 
-  // Handle input for mobile
   const handleInputChange = (e) => {
     const value = e.target.value;
     if (!gameOver && value.length > 0) {
@@ -137,14 +139,15 @@ export const WordlePage = () => {
         setGrid(newGrid);
         setCurrentCol(currentCol + 1);
       }
-      // Optionally handle backspace and enter here
     }
-    // Clear input after each key
     e.target.value = "";
   };
 
+  let lastClick = 0;
+
   return (
     <Box
+      key={gameKey}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -152,21 +155,62 @@ export const WordlePage = () => {
         justifyContent: "center",
         minHeight: "80vh",
         padding: 2,
+        width: "100vw",
+        height: "100vh",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        background: "linear-gradient(90deg, #1a1a2e 0%, #0f3460 100%)",
+        zIndex: 1,
       }}
     >
       <Button
+        type="button"
         variant="contained"
         color="primary"
         sx={{ backgroundColor: "red" }}
-        onClick={() => window.location.reload()}
+        onClick={() => {
+          setGameOver(false);
+          setCurrentRow(0);
+          setCurrentCol(0);
+          setGrid(
+            Array(6)
+              .fill()
+              .map(() => Array(5).fill(""))
+          );
+          setCellColors(
+            Array(6)
+              .fill()
+              .map(() => Array(5).fill("white"))
+          );
+          setShowDialog(false);
+          setWon(false);
+          setWord("");
+          setGameStarted(false);
+          setGameKey((k) => k + 1);
+          fetch("https://wordle-backend-3r6l.onrender.com/start")
+            .then((res) => res.json())
+            .then(() => setGameStarted(true));
+        }}
       >
         Restart Game
       </Button>
       <Box
-        sx={{ display: "flex", flexDirection: "column", gap: 1, marginTop: 4 }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 1,
+          marginTop: 4,
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+        }}
       >
         {grid.map((row, rowIndex) => (
-          <Box key={rowIndex} sx={{ display: "flex", gap: 1 }}>
+          <Box
+            key={rowIndex}
+            sx={{ display: "flex", gap: 1, justifyContent: "center" }}
+          >
             {row.map((letter, colIndex) => (
               <Box
                 key={colIndex}
@@ -199,7 +243,6 @@ export const WordlePage = () => {
           </Box>
         ))}
       </Box>
-      {/* Show input only on mobile */}
       {isMobile && (
         <TextField
           inputRef={inputRef}
@@ -219,6 +262,22 @@ export const WordlePage = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowDialog(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={invalidWordDialog}
+        onClose={() => setInvalidWordDialog(false)}
+      >
+        <DialogTitle>Word Not Found</DialogTitle>
+        <DialogContent>
+          <Typography>
+            The word you entered does not exist. Please try another word.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setInvalidWordDialog(false)} color="primary">
             Close
           </Button>
         </DialogActions>

@@ -48,6 +48,7 @@ export const About = () => {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
+          mt: { xs: 7, sm: 8, md: 0 }, // <-- Add top margin for mobile to shift down
         }}
       >
         <Typography
