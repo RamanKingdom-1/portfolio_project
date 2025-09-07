@@ -6,15 +6,24 @@ import {
   FaReact,
   FaHtml5,
   FaCss3,
+  FaCuttlefish,
+  FaDatabase,
+  FaRProject,
 } from "react-icons/fa";
+import { SiFlutter, SiNumpy } from "react-icons/si";
 
 const skills = [
   { name: "Java", icon: <FaJava size={32} color="#f89820" /> },
-  { name: "Python", icon: <FaPython size={32} color="#7137abff" /> },
+  { name: "Python", icon: <FaPython size={32} color="#3776ab" /> },
   { name: "JavaScript", icon: <FaJs size={32} color="#f7df1e" /> },
   { name: "React", icon: <FaReact size={32} color="#61dafb" /> },
-  { name: "HTML", icon: <FaHtml5 size={32} color="#e5ff00ff" /> },
-  { name: "CSS", icon: <FaCss3 size={32} color="#0519faff" /> },
+  { name: "HTML", icon: <FaHtml5 size={32} color="#e34c26" /> },
+  { name: "CSS", icon: <FaCss3 size={32} color="#2965f1" /> },
+  { name: "C++", icon: <FaCuttlefish size={32} color="#9c005bff" /> }, 
+  { name: "SQL", icon: <FaDatabase size={32} color="#008f34ff" /> },
+  { name: "R", icon: <FaRProject size={32} color="#c35827ff" /> },
+  { name: "Flutter", icon: <SiFlutter size={32} color="#02569B" /> },
+  { name: "Numpy", icon: <SiNumpy size={32} color="#430101ff" /> },
 ];
 
 export const About = () => {
@@ -48,7 +57,7 @@ export const About = () => {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          mt: { xs: 7, sm: 8, md: 0 }, // <-- Add top margin for mobile to shift down
+          mt: { xs: 7, sm: 8, md: 0 },
         }}
       >
         <Typography
