@@ -11,6 +11,7 @@ import {
   FaRProject,
 } from "react-icons/fa";
 import { SiFlutter, SiNumpy } from "react-icons/si";
+import { useEffect, useRef, useState } from "react";
 
 const skills = [
   { name: "Java", icon: <FaJava size={32} color="#f89820" /> },
@@ -19,7 +20,7 @@ const skills = [
   { name: "React", icon: <FaReact size={32} color="#61dafb" /> },
   { name: "HTML", icon: <FaHtml5 size={32} color="#e34c26" /> },
   { name: "CSS", icon: <FaCss3 size={32} color="#2965f1" /> },
-  { name: "C++", icon: <FaCuttlefish size={32} color="#9c005bff" /> }, 
+  { name: "C++", icon: <FaCuttlefish size={32} color="#9c005bff" /> },
   { name: "SQL", icon: <FaDatabase size={32} color="#008f34ff" /> },
   { name: "R", icon: <FaRProject size={32} color="#c35827ff" /> },
   { name: "Flutter", icon: <SiFlutter size={32} color="#02569B" /> },
@@ -27,6 +28,33 @@ const skills = [
 ];
 
 export const About = () => {
+  const scrollRef = useRef(null);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    let scrollAmount = 0;
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    const scrollSpeed = 1; // pixels per frame
+    let animationFrameId;
+
+    const scroll = () => {
+      if (!paused) {
+        scrollAmount += scrollSpeed;
+        if (scrollAmount >= scrollContainer.scrollWidth / 2) {
+          scrollAmount = 0;
+        }
+        scrollContainer.scrollLeft = scrollAmount;
+      }
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    animationFrameId = requestAnimationFrame(scroll);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [paused]);
+
   return (
     <Box
       sx={{
@@ -35,7 +63,6 @@ export const About = () => {
         left: 0,
         width: "100vw",
         height: "100vh",
-        boxSizing: "border-box",
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         justifyContent: "center",
@@ -48,11 +75,10 @@ export const About = () => {
         zIndex: 1,
       }}
     >
+      {/* Left Section */}
       <Box
         sx={{
           flex: 1,
-          minWidth: 0,
-          width: "100%",
           maxWidth: { xs: "100%", md: "600px" },
           display: "flex",
           flexDirection: "column",
@@ -65,21 +91,19 @@ export const About = () => {
           align="left"
           sx={{
             fontSize: { xs: 28, sm: 32, md: 40 },
-            maxWidth: "100%",
             mb: 2,
             color: "#fff",
           }}
         >
           About Me
         </Typography>
+
         <Typography
           variant="h5"
           align="left"
           sx={{
             color: "#f9f9f9",
             fontSize: { xs: 16, sm: 18, md: 22 },
-            maxWidth: "100%",
-            wordWrap: "break-word",
             mb: 2,
           }}
         >
@@ -88,10 +112,12 @@ export const About = () => {
           am interested in both the Software and Finance sectors.
         </Typography>
 
+        {/* Auto-scrolling Skills */}
         <Box
+          ref={scrollRef}
           sx={{
             width: "100%",
-            overflowX: "auto",
+            overflowX: "hidden",
             display: "flex",
             gap: 2,
             py: 2,
@@ -99,9 +125,11 @@ export const About = () => {
             whiteSpace: "nowrap",
           }}
         >
-          {skills.map((skill) => (
+          {[...skills, ...skills].map((skill, index) => (
             <Box
-              key={skill.name}
+              key={index}
+              onMouseEnter={() => setPaused(true)}
+              onMouseLeave={() => setPaused(false)}
               sx={{
                 display: "inline-flex",
                 flexDirection: "column",
@@ -139,15 +167,15 @@ export const About = () => {
           sx={{
             color: "#f9f9f9",
             fontSize: { xs: 14, sm: 16, md: 18 },
-            maxWidth: "100%",
             mb: 2,
           }}
         >
           Email: adithyaraman76@gmail.com
         </Typography>
+
         <Button
           variant="contained"
-          href="/Resume-Adithya Raman.pdf"
+          href="/Adithya Raman Resume.pdf"
           download
           sx={{
             mt: 2,
@@ -170,14 +198,14 @@ export const About = () => {
           Download Resume
         </Button>
       </Box>
+
+      {/* Right Section (Image) */}
       <Box
         sx={{
           flex: 1,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          minWidth: 0,
-          width: "100%",
           mt: { xs: 4, md: 0 },
         }}
       >
@@ -193,7 +221,6 @@ export const About = () => {
             boxShadow: 6,
             border: "4px solid #fa0202ff",
             maxWidth: "100%",
-            maxHeight: { xs: 180, sm: 220, md: 600 },
           }}
         />
       </Box>
