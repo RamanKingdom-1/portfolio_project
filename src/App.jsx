@@ -12,20 +12,10 @@ export default function App() {
     <Router>
       <Navbar />
       <Routes>
-        
         <Route path="/" element={<About />} />
         <Route path="/projects" element={<ProjectsPage />} />
 
-
         <Route path="/wordle" element={<WordlePage />} />
-        <Route
-          path="/nba"
-          element={
-            <div>
-              <h1>NBA Season Has Not Started Yet</h1>
-            </div>
-          }
-        />
       </Routes>
     </Router>
   );

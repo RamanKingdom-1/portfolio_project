@@ -1,12 +1,19 @@
 import { Box, Typography, Chip } from "@mui/material";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProjectCard = ({ project }) => {
+  const navigate = useNavigate();
+
   const [hover, setHover] = useState(false);
 
   const handleClick = () => {
     if (project.type === "link") {
-      window.open(project.link, "_blank");
+      if (project.link === "/wordle") {
+        navigate("/wordle");
+      } else {
+        window.open(project.link, "_blank");
+      }
     } else if (project.type === "video") {
       const videoWindow = window.open("", "_blank");
       videoWindow.document.write(
