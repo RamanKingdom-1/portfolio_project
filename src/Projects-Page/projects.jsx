@@ -1,6 +1,7 @@
 import { Box, Typography, Chip } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { WordlePage } from "../Wordle/WordlePage";
 
 const ProjectCard = ({ project }) => {
   const navigate = useNavigate();
@@ -9,17 +10,19 @@ const ProjectCard = ({ project }) => {
 
   const handleClick = () => {
     if (project.type === "link") {
-      if (project.link === "/wordle") {
-        navigate("/wordle");
+      // internal links (like /wordle)
+      if (project.link.startsWith("/")) {
+        navigate(project.link); // <-- this navigates inside the SPA
       } else {
+        // external links open in new tab
         window.open(project.link, "_blank");
       }
     } else if (project.type === "video") {
       const videoWindow = window.open("", "_blank");
       videoWindow.document.write(
         `<video controls autoplay style="width:100%;height:100%">
-          <source src="${project.video}" type="video/mp4">
-        </video>`
+        <source src="${project.video}" type="video/mp4">
+      </video>`
       );
     } else if (project.type === "pdf") {
       const a = document.createElement("a");
