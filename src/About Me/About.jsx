@@ -175,7 +175,7 @@ export const About = () => {
 
         <Button
           variant="contained"
-          href="/Adithya Raman Resume.pdf"
+          href="/Adithya_Raman_Resume.pdf"
           download
           sx={{
             mt: 2,

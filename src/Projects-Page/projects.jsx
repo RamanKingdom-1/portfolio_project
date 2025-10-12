@@ -186,7 +186,8 @@ let projects = [
       "Machine Learning",
       "API Integration",
     ],
-    description: "A clone of Wordle with custom features.",
+    description:
+      "A nba stats predictor that uses the NBA API and a linear regression model in order to predict how a player will do the next game",
   },
 ];
 
